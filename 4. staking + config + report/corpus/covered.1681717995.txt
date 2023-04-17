@@ -1,0 +1,710 @@
+/Users/souravsuman/Documents/Personal/Echidna/4. staking + config + report/node_modules/@openzeppelin/contracts/token/ERC20/ERC20.sol
+   1 |     | // SPDX-License-Identifier: MIT
+   2 |     | // OpenZeppelin Contracts (last updated v4.8.0) (token/ERC20/ERC20.sol)
+   3 |     | 
+   4 |     | pragma solidity ^0.8.0;
+   5 |     | 
+   6 |     | import "./IERC20.sol";
+   7 |     | import "./extensions/IERC20Metadata.sol";
+   8 |     | import "../../utils/Context.sol";
+   9 |     | 
+  10 |     | /**
+  11 |     |  * @dev Implementation of the {IERC20} interface.
+  12 |     |  *
+  13 |     |  * This implementation is agnostic to the way tokens are created. This means
+  14 |     |  * that a supply mechanism has to be added in a derived contract using {_mint}.
+  15 |     |  * For a generic mechanism see {ERC20PresetMinterPauser}.
+  16 |     |  *
+  17 |     |  * TIP: For a detailed writeup see our guide
+  18 |     |  * https://forum.openzeppelin.com/t/how-to-implement-erc20-supply-mechanisms/226[How
+  19 |     |  * to implement supply mechanisms].
+  20 |     |  *
+  21 |     |  * We have followed general OpenZeppelin Contracts guidelines: functions revert
+  22 |     |  * instead returning `false` on failure. This behavior is nonetheless
+  23 |     |  * conventional and does not conflict with the expectations of ERC20
+  24 |     |  * applications.
+  25 |     |  *
+  26 |     |  * Additionally, an {Approval} event is emitted on calls to {transferFrom}.
+  27 |     |  * This allows applications to reconstruct the allowance for all accounts just
+  28 |     |  * by listening to said events. Other implementations of the EIP may not emit
+  29 |     |  * these events, as it isn't required by the specification.
+  30 |     |  *
+  31 |     |  * Finally, the non-standard {decreaseAllowance} and {increaseAllowance}
+  32 |     |  * functions have been added to mitigate the well-known issues around setting
+  33 |     |  * allowances. See {IERC20-approve}.
+  34 |     |  */
+  35 |     | contract ERC20 is Context, IERC20, IERC20Metadata {
+  36 |     |     mapping(address => uint256) private _balances;
+  37 |     | 
+  38 |     |     mapping(address => mapping(address => uint256)) private _allowances;
+  39 |     | 
+  40 |     |     uint256 private _totalSupply;
+  41 |     | 
+  42 |     |     string private _name;
+  43 |     |     string private _symbol;
+  44 |     | 
+  45 |     |     /**
+  46 |     |      * @dev Sets the values for {name} and {symbol}.
+  47 |     |      *
+  48 |     |      * The default value of {decimals} is 18. To select a different value for
+  49 |     |      * {decimals} you should overload it.
+  50 |     |      *
+  51 |     |      * All two of these values are immutable: they can only be set once during
+  52 |     |      * construction.
+  53 |     |      */
+  54 |     |     constructor(string memory name_, string memory symbol_) {
+  55 |     |         _name = name_;
+  56 |     |         _symbol = symbol_;
+  57 |     |     }
+  58 |     | 
+  59 |     |     /**
+  60 |     |      * @dev Returns the name of the token.
+  61 |     |      */
+  62 |     |     function name() public view virtual override returns (string memory) {
+  63 |     |         return _name;
+  64 |     |     }
+  65 |     | 
+  66 |     |     /**
+  67 |     |      * @dev Returns the symbol of the token, usually a shorter version of the
+  68 |     |      * name.
+  69 |     |      */
+  70 |     |     function symbol() public view virtual override returns (string memory) {
+  71 |     |         return _symbol;
+  72 |     |     }
+  73 |     | 
+  74 |     |     /**
+  75 |     |      * @dev Returns the number of decimals used to get its user representation.
+  76 |     |      * For example, if `decimals` equals `2`, a balance of `505` tokens should
+  77 |     |      * be displayed to a user as `5.05` (`505 / 10 ** 2`).
+  78 |     |      *
+  79 |     |      * Tokens usually opt for a value of 18, imitating the relationship between
+  80 |     |      * Ether and Wei. This is the value {ERC20} uses, unless this function is
+  81 |     |      * overridden;
+  82 |     |      *
+  83 |     |      * NOTE: This information is only used for _display_ purposes: it in
+  84 |     |      * no way affects any of the arithmetic of the contract, including
+  85 |     |      * {IERC20-balanceOf} and {IERC20-transfer}.
+  86 |     |      */
+  87 |     |     function decimals() public view virtual override returns (uint8) {
+  88 |     |         return 18;
+  89 |     |     }
+  90 |     | 
+  91 |     |     /**
+  92 |     |      * @dev See {IERC20-totalSupply}.
+  93 |     |      */
+  94 |     |     function totalSupply() public view virtual override returns (uint256) {
+  95 |     |         return _totalSupply;
+  96 |     |     }
+  97 |     | 
+  98 |     |     /**
+  99 |     |      * @dev See {IERC20-balanceOf}.
+ 100 |     |      */
+ 101 | *r  |     function balanceOf(address account) public view virtual override returns (uint256) {
+ 102 | *r  |         return _balances[account];
+ 103 |     |     }
+ 104 |     | 
+ 105 |     |     /**
+ 106 |     |      * @dev See {IERC20-transfer}.
+ 107 |     |      *
+ 108 |     |      * Requirements:
+ 109 |     |      *
+ 110 |     |      * - `to` cannot be the zero address.
+ 111 |     |      * - the caller must have a balance of at least `amount`.
+ 112 |     |      */
+ 113 | *   |     function transfer(address to, uint256 amount) public virtual override returns (bool) {
+ 114 | *   |         address owner = _msgSender();
+ 115 | *   |         _transfer(owner, to, amount);
+ 116 | *   |         return true;
+ 117 |     |     }
+ 118 |     | 
+ 119 |     |     /**
+ 120 |     |      * @dev See {IERC20-allowance}.
+ 121 |     |      */
+ 122 |     |     function allowance(address owner, address spender) public view virtual override returns (uint256) {
+ 123 |     |         return _allowances[owner][spender];
+ 124 |     |     }
+ 125 |     | 
+ 126 |     |     /**
+ 127 |     |      * @dev See {IERC20-approve}.
+ 128 |     |      *
+ 129 |     |      * NOTE: If `amount` is the maximum `uint256`, the allowance is not updated on
+ 130 |     |      * `transferFrom`. This is semantically equivalent to an infinite approval.
+ 131 |     |      *
+ 132 |     |      * Requirements:
+ 133 |     |      *
+ 134 |     |      * - `spender` cannot be the zero address.
+ 135 |     |      */
+ 136 |     |     function approve(address spender, uint256 amount) public virtual override returns (bool) {
+ 137 |     |         address owner = _msgSender();
+ 138 |     |         _approve(owner, spender, amount);
+ 139 |     |         return true;
+ 140 |     |     }
+ 141 |     | 
+ 142 |     |     /**
+ 143 |     |      * @dev See {IERC20-transferFrom}.
+ 144 |     |      *
+ 145 |     |      * Emits an {Approval} event indicating the updated allowance. This is not
+ 146 |     |      * required by the EIP. See the note at the beginning of {ERC20}.
+ 147 |     |      *
+ 148 |     |      * NOTE: Does not update the allowance if the current allowance
+ 149 |     |      * is the maximum `uint256`.
+ 150 |     |      *
+ 151 |     |      * Requirements:
+ 152 |     |      *
+ 153 |     |      * - `from` and `to` cannot be the zero address.
+ 154 |     |      * - `from` must have a balance of at least `amount`.
+ 155 |     |      * - the caller must have allowance for ``from``'s tokens of at least
+ 156 |     |      * `amount`.
+ 157 |     |      */
+ 158 |     |     function transferFrom(
+ 159 |     |         address from,
+ 160 |     |         address to,
+ 161 |     |         uint256 amount
+ 162 |     |     ) public virtual override returns (bool) {
+ 163 |     |         address spender = _msgSender();
+ 164 |     |         _spendAllowance(from, spender, amount);
+ 165 |     |         _transfer(from, to, amount);
+ 166 |     |         return true;
+ 167 |     |     }
+ 168 |     | 
+ 169 |     |     /**
+ 170 |     |      * @dev Atomically increases the allowance granted to `spender` by the caller.
+ 171 |     |      *
+ 172 |     |      * This is an alternative to {approve} that can be used as a mitigation for
+ 173 |     |      * problems described in {IERC20-approve}.
+ 174 |     |      *
+ 175 |     |      * Emits an {Approval} event indicating the updated allowance.
+ 176 |     |      *
+ 177 |     |      * Requirements:
+ 178 |     |      *
+ 179 |     |      * - `spender` cannot be the zero address.
+ 180 |     |      */
+ 181 |     |     function increaseAllowance(address spender, uint256 addedValue) public virtual returns (bool) {
+ 182 |     |         address owner = _msgSender();
+ 183 |     |         _approve(owner, spender, allowance(owner, spender) + addedValue);
+ 184 |     |         return true;
+ 185 |     |     }
+ 186 |     | 
+ 187 |     |     /**
+ 188 |     |      * @dev Atomically decreases the allowance granted to `spender` by the caller.
+ 189 |     |      *
+ 190 |     |      * This is an alternative to {approve} that can be used as a mitigation for
+ 191 |     |      * problems described in {IERC20-approve}.
+ 192 |     |      *
+ 193 |     |      * Emits an {Approval} event indicating the updated allowance.
+ 194 |     |      *
+ 195 |     |      * Requirements:
+ 196 |     |      *
+ 197 |     |      * - `spender` cannot be the zero address.
+ 198 |     |      * - `spender` must have allowance for the caller of at least
+ 199 |     |      * `subtractedValue`.
+ 200 |     |      */
+ 201 |     |     function decreaseAllowance(address spender, uint256 subtractedValue) public virtual returns (bool) {
+ 202 |     |         address owner = _msgSender();
+ 203 |     |         uint256 currentAllowance = allowance(owner, spender);
+ 204 |     |         require(currentAllowance >= subtractedValue, "ERC20: decreased allowance below zero");
+ 205 |     |         unchecked {
+ 206 |     |             _approve(owner, spender, currentAllowance - subtractedValue);
+ 207 |     |         }
+ 208 |     | 
+ 209 |     |         return true;
+ 210 |     |     }
+ 211 |     | 
+ 212 |     |     /**
+ 213 |     |      * @dev Moves `amount` of tokens from `from` to `to`.
+ 214 |     |      *
+ 215 |     |      * This internal function is equivalent to {transfer}, and can be used to
+ 216 |     |      * e.g. implement automatic token fees, slashing mechanisms, etc.
+ 217 |     |      *
+ 218 |     |      * Emits a {Transfer} event.
+ 219 |     |      *
+ 220 |     |      * Requirements:
+ 221 |     |      *
+ 222 |     |      * - `from` cannot be the zero address.
+ 223 |     |      * - `to` cannot be the zero address.
+ 224 |     |      * - `from` must have a balance of at least `amount`.
+ 225 |     |      */
+ 226 | *   |     function _transfer(
+ 227 |     |         address from,
+ 228 |     |         address to,
+ 229 |     |         uint256 amount
+ 230 | *   |     ) internal virtual {
+ 231 | *   |         require(from != address(0), "ERC20: transfer from the zero address");
+ 232 | *   |         require(to != address(0), "ERC20: transfer to the zero address");
+ 233 |     | 
+ 234 | *   |         _beforeTokenTransfer(from, to, amount);
+ 235 |     | 
+ 236 | *   |         uint256 fromBalance = _balances[from];
+ 237 | *   |         require(fromBalance >= amount, "ERC20: transfer amount exceeds balance");
+ 238 |     |         unchecked {
+ 239 | *   |             _balances[from] = fromBalance - amount;
+ 240 |     |             // Overflow not possible: the sum of all balances is capped by totalSupply, and the sum is preserved by
+ 241 |     |             // decrementing then incrementing.
+ 242 | *   |             _balances[to] += amount;
+ 243 |     |         }
+ 244 |     | 
+ 245 | *   |         emit Transfer(from, to, amount);
+ 246 |     | 
+ 247 | *   |         _afterTokenTransfer(from, to, amount);
+ 248 |     |     }
+ 249 |     | 
+ 250 |     |     /** @dev Creates `amount` tokens and assigns them to `account`, increasing
+ 251 |     |      * the total supply.
+ 252 |     |      *
+ 253 |     |      * Emits a {Transfer} event with `from` set to the zero address.
+ 254 |     |      *
+ 255 |     |      * Requirements:
+ 256 |     |      *
+ 257 |     |      * - `account` cannot be the zero address.
+ 258 |     |      */
+ 259 |     |     function _mint(address account, uint256 amount) internal virtual {
+ 260 |     |         require(account != address(0), "ERC20: mint to the zero address");
+ 261 |     | 
+ 262 |     |         _beforeTokenTransfer(address(0), account, amount);
+ 263 |     | 
+ 264 |     |         _totalSupply += amount;
+ 265 |     |         unchecked {
+ 266 |     |             // Overflow not possible: balance + amount is at most totalSupply + amount, which is checked above.
+ 267 |     |             _balances[account] += amount;
+ 268 |     |         }
+ 269 |     |         emit Transfer(address(0), account, amount);
+ 270 |     | 
+ 271 |     |         _afterTokenTransfer(address(0), account, amount);
+ 272 |     |     }
+ 273 |     | 
+ 274 |     |     /**
+ 275 |     |      * @dev Destroys `amount` tokens from `account`, reducing the
+ 276 |     |      * total supply.
+ 277 |     |      *
+ 278 |     |      * Emits a {Transfer} event with `to` set to the zero address.
+ 279 |     |      *
+ 280 |     |      * Requirements:
+ 281 |     |      *
+ 282 |     |      * - `account` cannot be the zero address.
+ 283 |     |      * - `account` must have at least `amount` tokens.
+ 284 |     |      */
+ 285 |     |     function _burn(address account, uint256 amount) internal virtual {
+ 286 |     |         require(account != address(0), "ERC20: burn from the zero address");
+ 287 |     | 
+ 288 |     |         _beforeTokenTransfer(account, address(0), amount);
+ 289 |     | 
+ 290 |     |         uint256 accountBalance = _balances[account];
+ 291 |     |         require(accountBalance >= amount, "ERC20: burn amount exceeds balance");
+ 292 |     |         unchecked {
+ 293 |     |             _balances[account] = accountBalance - amount;
+ 294 |     |             // Overflow not possible: amount <= accountBalance <= totalSupply.
+ 295 |     |             _totalSupply -= amount;
+ 296 |     |         }
+ 297 |     | 
+ 298 |     |         emit Transfer(account, address(0), amount);
+ 299 |     | 
+ 300 |     |         _afterTokenTransfer(account, address(0), amount);
+ 301 |     |     }
+ 302 |     | 
+ 303 |     |     /**
+ 304 |     |      * @dev Sets `amount` as the allowance of `spender` over the `owner` s tokens.
+ 305 |     |      *
+ 306 |     |      * This internal function is equivalent to `approve`, and can be used to
+ 307 |     |      * e.g. set automatic allowances for certain subsystems, etc.
+ 308 |     |      *
+ 309 |     |      * Emits an {Approval} event.
+ 310 |     |      *
+ 311 |     |      * Requirements:
+ 312 |     |      *
+ 313 |     |      * - `owner` cannot be the zero address.
+ 314 |     |      * - `spender` cannot be the zero address.
+ 315 |     |      */
+ 316 |     |     function _approve(
+ 317 |     |         address owner,
+ 318 |     |         address spender,
+ 319 |     |         uint256 amount
+ 320 |     |     ) internal virtual {
+ 321 |     |         require(owner != address(0), "ERC20: approve from the zero address");
+ 322 |     |         require(spender != address(0), "ERC20: approve to the zero address");
+ 323 |     | 
+ 324 |     |         _allowances[owner][spender] = amount;
+ 325 |     |         emit Approval(owner, spender, amount);
+ 326 |     |     }
+ 327 |     | 
+ 328 |     |     /**
+ 329 |     |      * @dev Updates `owner` s allowance for `spender` based on spent `amount`.
+ 330 |     |      *
+ 331 |     |      * Does not update the allowance amount in case of infinite allowance.
+ 332 |     |      * Revert if not enough allowance is available.
+ 333 |     |      *
+ 334 |     |      * Might emit an {Approval} event.
+ 335 |     |      */
+ 336 |     |     function _spendAllowance(
+ 337 |     |         address owner,
+ 338 |     |         address spender,
+ 339 |     |         uint256 amount
+ 340 |     |     ) internal virtual {
+ 341 |     |         uint256 currentAllowance = allowance(owner, spender);
+ 342 |     |         if (currentAllowance != type(uint256).max) {
+ 343 |     |             require(currentAllowance >= amount, "ERC20: insufficient allowance");
+ 344 |     |             unchecked {
+ 345 |     |                 _approve(owner, spender, currentAllowance - amount);
+ 346 |     |             }
+ 347 |     |         }
+ 348 |     |     }
+ 349 |     | 
+ 350 |     |     /**
+ 351 |     |      * @dev Hook that is called before any transfer of tokens. This includes
+ 352 |     |      * minting and burning.
+ 353 |     |      *
+ 354 |     |      * Calling conditions:
+ 355 |     |      *
+ 356 |     |      * - when `from` and `to` are both non-zero, `amount` of ``from``'s tokens
+ 357 |     |      * will be transferred to `to`.
+ 358 |     |      * - when `from` is zero, `amount` tokens will be minted for `to`.
+ 359 |     |      * - when `to` is zero, `amount` of ``from``'s tokens will be burned.
+ 360 |     |      * - `from` and `to` are never both zero.
+ 361 |     |      *
+ 362 |     |      * To learn more about hooks, head to xref:ROOT:extending-contracts.adoc#using-hooks[Using Hooks].
+ 363 |     |      */
+ 364 | *   |     function _beforeTokenTransfer(
+ 365 |     |         address from,
+ 366 |     |         address to,
+ 367 |     |         uint256 amount
+ 368 |     |     ) internal virtual {}
+ 369 |     | 
+ 370 |     |     /**
+ 371 |     |      * @dev Hook that is called after any transfer of tokens. This includes
+ 372 |     |      * minting and burning.
+ 373 |     |      *
+ 374 |     |      * Calling conditions:
+ 375 |     |      *
+ 376 |     |      * - when `from` and `to` are both non-zero, `amount` of ``from``'s tokens
+ 377 |     |      * has been transferred to `to`.
+ 378 |     |      * - when `from` is zero, `amount` tokens have been minted for `to`.
+ 379 |     |      * - when `to` is zero, `amount` of ``from``'s tokens have been burned.
+ 380 |     |      * - `from` and `to` are never both zero.
+ 381 |     |      *
+ 382 |     |      * To learn more about hooks, head to xref:ROOT:extending-contracts.adoc#using-hooks[Using Hooks].
+ 383 |     |      */
+ 384 | *   |     function _afterTokenTransfer(
+ 385 |     |         address from,
+ 386 |     |         address to,
+ 387 |     |         uint256 amount
+ 388 |     |     ) internal virtual {}
+ 389 |     | }
+ 390 |     | 
+
+/Users/souravsuman/Documents/Personal/Echidna/4. staking + config + report/node_modules/@openzeppelin/contracts/token/ERC20/IERC20.sol
+  1 |     | // SPDX-License-Identifier: MIT
+  2 |     | // OpenZeppelin Contracts (last updated v4.6.0) (token/ERC20/IERC20.sol)
+  3 |     | 
+  4 |     | pragma solidity ^0.8.0;
+  5 |     | 
+  6 |     | /**
+  7 |     |  * @dev Interface of the ERC20 standard as defined in the EIP.
+  8 |     |  */
+  9 |     | interface IERC20 {
+ 10 |     |     /**
+ 11 |     |      * @dev Emitted when `value` tokens are moved from one account (`from`) to
+ 12 |     |      * another (`to`).
+ 13 |     |      *
+ 14 |     |      * Note that `value` may be zero.
+ 15 |     |      */
+ 16 |     |     event Transfer(address indexed from, address indexed to, uint256 value);
+ 17 |     | 
+ 18 |     |     /**
+ 19 |     |      * @dev Emitted when the allowance of a `spender` for an `owner` is set by
+ 20 |     |      * a call to {approve}. `value` is the new allowance.
+ 21 |     |      */
+ 22 |     |     event Approval(address indexed owner, address indexed spender, uint256 value);
+ 23 |     | 
+ 24 |     |     /**
+ 25 |     |      * @dev Returns the amount of tokens in existence.
+ 26 |     |      */
+ 27 |     |     function totalSupply() external view returns (uint256);
+ 28 |     | 
+ 29 |     |     /**
+ 30 |     |      * @dev Returns the amount of tokens owned by `account`.
+ 31 |     |      */
+ 32 |     |     function balanceOf(address account) external view returns (uint256);
+ 33 |     | 
+ 34 |     |     /**
+ 35 |     |      * @dev Moves `amount` tokens from the caller's account to `to`.
+ 36 |     |      *
+ 37 |     |      * Returns a boolean value indicating whether the operation succeeded.
+ 38 |     |      *
+ 39 |     |      * Emits a {Transfer} event.
+ 40 |     |      */
+ 41 |     |     function transfer(address to, uint256 amount) external returns (bool);
+ 42 |     | 
+ 43 |     |     /**
+ 44 |     |      * @dev Returns the remaining number of tokens that `spender` will be
+ 45 |     |      * allowed to spend on behalf of `owner` through {transferFrom}. This is
+ 46 |     |      * zero by default.
+ 47 |     |      *
+ 48 |     |      * This value changes when {approve} or {transferFrom} are called.
+ 49 |     |      */
+ 50 |     |     function allowance(address owner, address spender) external view returns (uint256);
+ 51 |     | 
+ 52 |     |     /**
+ 53 |     |      * @dev Sets `amount` as the allowance of `spender` over the caller's tokens.
+ 54 |     |      *
+ 55 |     |      * Returns a boolean value indicating whether the operation succeeded.
+ 56 |     |      *
+ 57 |     |      * IMPORTANT: Beware that changing an allowance with this method brings the risk
+ 58 |     |      * that someone may use both the old and the new allowance by unfortunate
+ 59 |     |      * transaction ordering. One possible solution to mitigate this race
+ 60 |     |      * condition is to first reduce the spender's allowance to 0 and set the
+ 61 |     |      * desired value afterwards:
+ 62 |     |      * https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729
+ 63 |     |      *
+ 64 |     |      * Emits an {Approval} event.
+ 65 |     |      */
+ 66 |     |     function approve(address spender, uint256 amount) external returns (bool);
+ 67 |     | 
+ 68 |     |     /**
+ 69 |     |      * @dev Moves `amount` tokens from `from` to `to` using the
+ 70 |     |      * allowance mechanism. `amount` is then deducted from the caller's
+ 71 |     |      * allowance.
+ 72 |     |      *
+ 73 |     |      * Returns a boolean value indicating whether the operation succeeded.
+ 74 |     |      *
+ 75 |     |      * Emits a {Transfer} event.
+ 76 |     |      */
+ 77 |     |     function transferFrom(
+ 78 |     |         address from,
+ 79 |     |         address to,
+ 80 |     |         uint256 amount
+ 81 |     |     ) external returns (bool);
+ 82 |     | }
+ 83 |     | 
+
+/Users/souravsuman/Documents/Personal/Echidna/4. staking + config + report/node_modules/@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol
+  1 |     | // SPDX-License-Identifier: MIT
+  2 |     | // OpenZeppelin Contracts v4.4.1 (token/ERC20/extensions/IERC20Metadata.sol)
+  3 |     | 
+  4 |     | pragma solidity ^0.8.0;
+  5 |     | 
+  6 |     | import "../IERC20.sol";
+  7 |     | 
+  8 |     | /**
+  9 |     |  * @dev Interface for the optional metadata functions from the ERC20 standard.
+ 10 |     |  *
+ 11 |     |  * _Available since v4.1._
+ 12 |     |  */
+ 13 |     | interface IERC20Metadata is IERC20 {
+ 14 |     |     /**
+ 15 |     |      * @dev Returns the name of the token.
+ 16 |     |      */
+ 17 |     |     function name() external view returns (string memory);
+ 18 |     | 
+ 19 |     |     /**
+ 20 |     |      * @dev Returns the symbol of the token.
+ 21 |     |      */
+ 22 |     |     function symbol() external view returns (string memory);
+ 23 |     | 
+ 24 |     |     /**
+ 25 |     |      * @dev Returns the decimals places of the token.
+ 26 |     |      */
+ 27 |     |     function decimals() external view returns (uint8);
+ 28 |     | }
+ 29 |     | 
+
+/Users/souravsuman/Documents/Personal/Echidna/4. staking + config + report/node_modules/@openzeppelin/contracts/utils/Context.sol
+  1 |     | // SPDX-License-Identifier: MIT
+  2 |     | // OpenZeppelin Contracts v4.4.1 (utils/Context.sol)
+  3 |     | 
+  4 |     | pragma solidity ^0.8.0;
+  5 |     | 
+  6 |     | /**
+  7 |     |  * @dev Provides information about the current execution context, including the
+  8 |     |  * sender of the transaction and its data. While these are generally available
+  9 |     |  * via msg.sender and msg.data, they should not be accessed in such a direct
+ 10 |     |  * manner, since when dealing with meta-transactions the account sending and
+ 11 |     |  * paying for execution may not be the actual sender (as far as an application
+ 12 |     |  * is concerned).
+ 13 |     |  *
+ 14 |     |  * This contract is only required for intermediate, library-like contracts.
+ 15 |     |  */
+ 16 |     | abstract contract Context {
+ 17 | *   |     function _msgSender() internal view virtual returns (address) {
+ 18 | *   |         return msg.sender;
+ 19 |     |     }
+ 20 |     | 
+ 21 |     |     function _msgData() internal view virtual returns (bytes calldata) {
+ 22 |     |         return msg.data;
+ 23 |     |     }
+ 24 |     | }
+ 25 |     | 
+
+/Users/souravsuman/Documents/Personal/Echidna/4. staking + config + report/contracts/Staker.sol
+  1 |     | pragma solidity 0.8.17;
+  2 |     | 
+  3 |     | import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+  4 | *r  | 
+  5 |     | contract Staker {
+  6 |     |     // stakedBalances holds the staked balance of a user
+  7 | *r  |     mapping(address => uint256) public stakedBalances;
+  8 |     | 
+  9 |     |     IERC20 public tokenToStake;
+ 10 |     | 
+ 11 |     |     // Set the token that will be staked
+ 12 |     |     constructor(address _tokenToStake) {
+ 13 |     |         tokenToStake = IERC20(_tokenToStake);
+ 14 |     |     }
+ 15 |     | 
+ 16 |     |     /// @dev stake function will stake some amount of tokenToStake and update the user balance
+ 17 | *   |     function stake(uint256 amount) public returns(uint256 stakedAmount) {
+ 18 |     |         // This is not safe, use safeTransferFrom
+ 19 | *   |         bool success = tokenToStake.transferFrom(msg.sender, address(this), amount);
+ 20 | *   |         require(success == true, "transferFrom failed");
+ 21 |     | 
+ 22 |     |         // The exchange rate of token to staked token is 1:1
+ 23 | *   |         stakedAmount = amount;
+ 24 |     |         // Update the balance of the sender
+ 25 | *   |         stakedBalances[msg.sender] += stakedAmount;
+ 26 |     |     }
+ 27 |     | 
+ 28 |     |     /// @dev unstake function will unstake some amount and transfer the associated amount of tokenToStake to the user
+ 29 | *   |     function unstake(uint256 stakedAmount) public returns(uint256 amount) {
+ 30 |     |         // Make sure msg.sender has staked more than stakedAmount
+ 31 | *   |         require(stakedBalances[msg.sender] >= stakedAmount, "Cannot unstake more than you have");
+ 32 |     |         // Update the balance of the sender
+ 33 | *   |         stakedBalances[msg.sender] -= stakedAmount;
+ 34 |     |         // You get back what you deposited
+ 35 | *   |         amount = stakedAmount;
+ 36 | *   |         bool success = tokenToStake.transfer(msg.sender, amount);
+ 37 | *   |         require(success == true, "transfer failed");
+ 38 |     |     }
+ 39 |     | }
+
+/Users/souravsuman/Documents/Personal/Echidna/4. staking + config + report/contracts/Template.sol
+  1 |     | pragma solidity ^0.8.17;
+  2 |     | 
+  3 |     | import "./Staker.sol";
+  4 |     | import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+  5 |     | 
+  6 |     | contract MockERC20 is ERC20 {
+  7 |     | 
+  8 |     |     constructor(string memory _name, string memory _symbol) ERC20(_name, _symbol) {}
+  9 |     | 
+ 10 |     |     function mint(address _to, uint256 _amount) external {
+ 11 |     |         _mint(_to, _amount);
+ 12 |     |     }
+ 13 |     | }
+ 14 |     | 
+ 15 |     | // We are using an external testing methodology
+ 16 |     | contract EchidnaTemplate {
+ 17 |     | 
+ 18 |     |     Staker stakerContract;
+ 19 |     |     MockERC20 tokenToStake;
+ 20 |     | 
+ 21 |     |     // setup
+ 22 |     |     constructor() {
+ 23 |     |         tokenToStake = new MockERC20("Token", "TOK");
+ 24 |     |         stakerContract = new Staker(address(tokenToStake));
+ 25 |     |     }
+ 26 |     | 
+ 27 |     |     // function-level invariants
+ 28 |     |     function testStake(uint256 _amount) public {
+ 29 |     |         // Pre-condition
+ 30 |     |         require(tokenToStake.balanceOf(address(this)) > 0);
+ 31 |     |         // Optimization: amount is now bounded between [1, balanceOf(address(this))]
+ 32 |     |         uint256 amount = 1 + (_amount % (tokenToStake.balanceOf(address(this))));
+ 33 |     |         // State before the "action"
+ 34 |     |         uint256 preStakedBalance = stakerContract.stakedBalances(address(this));
+ 35 |     |         // Action
+ 36 |     |         uint256 stakedAmount = stakerContract.stake(amount);
+ 37 |     |         // Post-condition
+ 38 |     |         assert(stakerContract.stakedBalances(address(this)) == preStakedBalance + stakedAmount); 
+ 39 |     |     }
+ 40 |     | 
+ 41 |     |     function testUnstake(uint256 _stakedAmount) public {
+ 42 |     |         // Pre-condition
+ 43 |     |         require(stakerContract.stakedBalances(address(this)) > 0);
+ 44 |     |         // Optimization: amount is now bounded between [1, stakedBalance[address(this)]]
+ 45 |     |         uint256 stakedAmount = 1 + (_stakedAmount % (stakerContract.stakedBalances(address(this))));
+ 46 |     |         // State before the "action"
+ 47 |     |         uint256 preTokenBalance = tokenToStake.balanceOf(address(this));
+ 48 |     |         // Action
+ 49 |     |         uint256 amount = stakerContract.unstake(stakedAmount);
+ 50 |     |         // Post-condition
+ 51 |     |         assert(tokenToStake.balanceOf(address(this)) == preTokenBalance + amount); 
+ 52 |     |     }
+ 53 |     | }
+
+/Users/souravsuman/Documents/Personal/Echidna/4. staking + config + report/contracts/solution.sol
+  1 |     | pragma solidity ^0.8.17;
+  2 |     | 
+  3 |     | import "./Staker.sol";
+  4 |     | import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+  5 | *r  | 
+  6 |     | contract MockERC20 is ERC20 {
+  7 |     | 
+  8 |     |     constructor(string memory _name, string memory _symbol) ERC20(_name, _symbol) {}
+  9 |     | 
+ 10 |     |     function mint(address _to, uint256 _amount) external {
+ 11 |     |         _mint(_to, _amount);
+ 12 |     |     }
+ 13 |     | 
+ 14 | *   |     function transferFrom(
+ 15 |     |         address from,
+ 16 |     |         address to,
+ 17 |     |         uint256 amount
+ 18 | *   |     ) public override returns (bool) {
+ 19 | *   |         address spender = msg.sender;
+ 20 |     |         //_spendAllowance(from, spender, amount); // allowance was disabled
+ 21 | *   |         _transfer(from, to, amount);
+ 22 | *   |         return true;
+ 23 |     |     }
+ 24 |     | }
+ 25 |     | 
+ 26 | *r  | // We are using an external testing methodology
+ 27 |     | contract EchidnaTemplateSolution {
+ 28 |     | 
+ 29 |     |     Staker stakerContract;
+ 30 |     |     MockERC20 tokenToStake;
+ 31 |     | 
+ 32 |     |     // setup
+ 33 |     |     constructor() {
+ 34 |     |         // Create the token
+ 35 |     |         tokenToStake = new MockERC20("Token", "TOK");
+ 36 |     |         // Mint this address a bunch of tokens
+ 37 |     |         tokenToStake.mint(address(this), type(uint128).max);
+ 38 |     |         // Create target system
+ 39 |     |         stakerContract = new Staker(address(tokenToStake));
+ 40 |     |     }
+ 41 |     | 
+ 42 |     |     // function-level invariants
+ 43 | *r  |     function testStake(uint256 _amount) public {
+ 44 |     |         // Pre-condition
+ 45 | *r  |         require(tokenToStake.balanceOf(address(this)) > 0);
+ 46 |     |         // Optimization: amount is now bounded between [1, balanceOf(msg.sender)]
+ 47 | *   |         uint256 amount = 1 + (_amount % (tokenToStake.balanceOf(address(this))));
+ 48 |     |         // State before the "action"
+ 49 | *   |         uint256 preStakedBalance = stakerContract.stakedBalances(address(this));
+ 50 |     |         // Action
+ 51 | *   |         try stakerContract.stake(amount) returns(uint256 stakedAmount) {
+ 52 |     |             // Post-condition
+ 53 | *   |             assert(stakerContract.stakedBalances(address(this)) == preStakedBalance + stakedAmount); 
+ 54 |     |         } catch (bytes memory err) {
+ 55 |     |             // Post-condition
+ 56 |     |             assert(false);
+ 57 |     |         }
+ 58 |     |     }
+ 59 |     | 
+ 60 | *r  |     function testUnstake(uint256 _stakedAmount) public {
+ 61 |     |         // Pre-condition
+ 62 | *r  |         require(stakerContract.stakedBalances(address(this)) > 0);
+ 63 |     |         // Optimization: amount is now bounded between [1, stakedBalance[address(this)]]
+ 64 | *   |         uint256 stakedAmount = 1 + (_stakedAmount % (stakerContract.stakedBalances(address(this))));
+ 65 |     |         // State before the "action"
+ 66 | *   |         uint256 preTokenBalance = tokenToStake.balanceOf(address(this));
+ 67 |     |         // Action
+ 68 | *   |         try stakerContract.unstake(stakedAmount) returns(uint256 amount) {
+ 69 |     |             // Post-condition
+ 70 | *   |             assert(tokenToStake.balanceOf(address(this)) == preTokenBalance + amount); 
+ 71 |     |         } catch (bytes memory err) {
+ 72 |     |             // Post-condition
+ 73 |     |             assert(false);
+ 74 |     |         } 
+ 75 |     |     }
+ 76 |     | }
+ 77 |     | // echidna .  --contract EchidnaTemplateSolution --config config.yaml
+
