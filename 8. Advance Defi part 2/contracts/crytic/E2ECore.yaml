@@ -1,0 +1,10 @@
+corpusDir: 'corpus' # save the corpus in this directory 
+initialize: 'contracts/crytic/init.json' # use this init.json to seed
+testMode: assertion # this is the mode we'll often run it in 
+# testLimit: 5000 # by default this is 50000, however for writing properties, we may choose to lower it 
+shrinkLimit: 500 # this will determine the total number of times to shrink the code 
+testMaxGas: 800003000 
+sender: ["0x6A4A62E5A7eD13c361b176A5F62C2eE620Ac0DF8"] # 
+filterFunctions: ["EchidnaE2E.depositCallback(uint256,uint256,bytes)"]
+timeout: 3600 # 1 hour 
+codeSize: 0xfffffffffff # maximize code size 
